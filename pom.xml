@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.0.RELEASE</version>
+    </parent>
+
+    <groupId>com.mbk.app</groupId>
+    <artifactId>mymbk-music-app</artifactId>
+    <version>${build.version}</version>
+    <packaging>pom</packaging>
+
+    <name>mymbk-music-app</name>
+    <description>Music app on Dr. MBK of his compositions</description>
+
+    <properties>
+        <main.basedir>${basedir}</main.basedir>
+        <build.version>1.0.0</build.version>
+        <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <dockerfile.plugin.version>1.4.13</dockerfile.plugin.version>
+        <springdoc.openapi.version>1.2.32</springdoc.openapi.version>
+        <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
+        <commons-io.version>1.3.2</commons-io.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <google-java-format.version>1.7</google-java-format.version>
+        <guava.version>29.0-android</guava.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <passay.version>1.6.0</passay.version>
+        <hibernate-core.version>5.4.27.Final</hibernate-core.version>
+        <springfox.version>2.9.2</springfox.version>
+        <org.mapstruct.version>1.3.0.Final</org.mapstruct.version>
+        <!-- Configurable pieces -->
+        <docker.image.prefix>img</docker.image.prefix>
+        <from.image>openjdk:8-jre</from.image>
+        <!--suppress UnresolvedMavenProperty -->
+        <ecr.repository>${env.ECR_REPOSITORY}</ecr.repository>
+        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <tomcat-embed-core-version>9.0.41</tomcat-embed-core-version>
+        <commons-validator.version>1.7</commons-validator.version>
+
+        <!--suppress UnresolvedMavenProperty -->
+        <active.profile>${env.PROFILE}</active.profile>
+        <!--suppress UnresolvedMavenProperty -->
+        <config.service.port>${env.CONFIG_SERVICE_PORT}</config.service.port>
+        <!--suppress UnresolvedMavenProperty -->
+        <container.base.directory>${env.CONTAINER_BASE_DIRECTORY}</container.base.directory>
+
+    </properties>
+
+    <!-- Dependency management -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud Dependency -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Doc OpenAPI -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc.openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-webflux-core</artifactId>
+                <version>${springdoc.openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-webflux-ui</artifactId>
+                <version>${springdoc.openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons-collections4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-validator</groupId>
+                <artifactId>commons-validator</artifactId>
+                <version>${commons-validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.googlejavaformat</groupId>
+                <artifactId>google-java-format</artifactId>
+                <version>${google-java-format.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <!-- Mapstruct dependencies. -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
+            <!-- JWT dependency -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Build configuration -->
+    <build>
+        <!-- Defines plugins that are used in the modules. -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>dockerfile-maven-plugin</artifactId>
+                    <version>${dockerfile.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <modules>
+        <module>commons/mymbk-music-app-commons</module>
+        <module>commons/mymbk-music-app-data-commons</module>
+        <module>commons/mymbk-music-app-data-jpa-commons</module>
+        <module>commons/mymbk-music-app-data-mongo-commons</module>
+        <module>commons/mymbk-music-app-web-commons</module>
+        <module>commons/mymbk-music-app-test-commons</module>
+        <module>security/mymbk-music-app-security-commons</module>
+        <module>security/mymbk-music-app-security-auth-db</module>
+        <module>infra-services/mymbk-music-app-config-service</module>
+        <module>infra-services/mymbk-music-app-discovery-service</module>
+        <module>infra-services/mymbk-music-app-gateway-service</module>
+        <module>infra-services/mymbk-music-app-authentication-service</module>
+        <module>commons/mymbk-music-app-user-data-commons</module>
+        <module>services/mbkmusic-mbkmusic-service</module>
+        <module>services/mbkmusic-mbkauth-service</module>
+    </modules>
+</project>

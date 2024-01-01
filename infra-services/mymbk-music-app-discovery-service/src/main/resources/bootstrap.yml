@@ -1,0 +1,41 @@
+# Application name and Config Service URI
+# ---------------------------------------
+spring:
+  application:
+    name: discovery-service
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+
+# Information that gets displayed in the spring admin UI
+# ------------------------------------------------------
+info:
+  app:
+    name: ${spring.application.name}
+    description: Discovery Service
+
+---
+---
+# ------------
+# Profile - dev
+# -------------
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+
+
+---
+# ------------
+# Profile - local
+# -------------
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: http://localhost:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true

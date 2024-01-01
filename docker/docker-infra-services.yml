@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+
+  # Config-Service container
+  # ------------------------
+  config-service:
+    container_name: config-service
+    image: img/mymbk-music-app-config-service:1.0.0
+    restart: always
+    ports:
+      - "8888:8888"
+    environment:
+      - SERVICE_PORT=8888
+    env_file:
+      - app.env
+
+  # Discovery-Service container
+  # ---------------------------
+  discovery-service:
+    container_name: discovery-service
+    image: img/mymbk-music-app-discovery-service:1.0.0
+    restart: always
+    depends_on:
+      - config-service
+    ports:
+      - "8761:8761"
+    environment:
+      - SERVICE_PORT=8761
+    env_file:
+      - app.env
+
+  # Gateway service container
+  # -------------------------
+  gateway-service:
+    container_name: gateway-service
+    image: img/mymbk-music-app-gateway-service:1.0.0
+    restart: always
+    depends_on:
+      - discovery-service
+    ports:
+      - "8762:8762"
+    environment:
+      - SERVICE_PORT=8762
+    env_file:
+      - app.env
+
+
+  # Authentication-Service container
+  # ------------------------
+  authentication-service:
+    container_name: authentication-service
+    image: img/mymbk-music-app-authentication-service:1.0.0
+    env_file:
+      - app.env
+    restart: always
+    ports:
+      - "9527:9527"
+    depends_on:
+      - discovery-service
+    environment:
+      - SERVICE_PORT=9527

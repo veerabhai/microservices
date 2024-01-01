@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+
+    # Service - mbk_music_database-db-server
+    mbk_music_database-db-server:
+        container_name: mbk_music_database-db-server
+        image: postgres:14.4
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=ErBiMvSKJd1jtnw
+            - POSTGRES_DB=mbk_database
+        env_file:
+          - app.env
+
+# Service - mbkmusic-mbkmusic-service
+    mbkmusic-mbkmusic-service:
+        container_name: mbkmusic-mbkmusic-service
+        image: img/mbkmusic-mbkmusic-service:1.0.0
+        restart: always
+        ports:
+            - "9062:9062"
+        env_file:
+          - app.env
+
+
+# Service - mbkmusic-mbkauth-service
+    mbkmusic-mbkauth-service:
+        container_name: mbkmusic-mbkauth-service
+        image: img/mbkmusic-mbkauth-service:1.0.0
+        restart: always
+        ports:
+            - "9668:9668"
+        env_file:
+          - app.env
+
+

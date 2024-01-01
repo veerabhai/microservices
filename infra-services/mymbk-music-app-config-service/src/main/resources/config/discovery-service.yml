@@ -1,0 +1,13 @@
+# Server Port
+# -----------
+server:
+  port: ${DISCOVERY_SERVICE_PORT:8761}
+
+# Discovery Service Settings
+# --------------------------
+eureka:
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+  server:
+    enableSelfPreservation: true

@@ -1,0 +1,180 @@
+# Application Information
+# -----------------------
+# Log settings
+# ------------
+logging:
+  level:
+    com.netflix: ERROR
+    org.springframework: ${ISY_SPRING_LOGGING_LEVEL:ERROR}
+    com.mbk.app: ${ISY_LOGGING_LEVEL:INFO}
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  console:
+  file:
+    name: /opt/apps/mymbk-music-app/logs/${spring.application.name}.log
+
+# Management security & Actuator endpoints
+# ----------------------------------------
+management:
+  context-path: /admin/actuator
+endpoints:
+  restart:
+    enabled: true
+  shutdown:
+    enabled: true
+  health:
+    sensitive: false
+
+# Eureka Settings
+# ---------------
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    health-check-url-path: ${management.context-path}/health
+    preferIpAddress: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://discovery-service:${DISCOVERY_SERVICE_PORT:8761}/eureka/
+---
+# Routes configuration
+# --------------------
+spring:
+  # Database properties
+  datasource:
+    driverClassName: ${DB_DRIVER_CLASS:org.postgresql.Driver}
+    platform: postgres
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:veera}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_SERVER_PORT:5432}/${DB_NAME:mbk_database}?createDatabaseIfNotExist=true
+    initialization-mode: always
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 10
+      maximum-pool-size: 120
+      idle-timeout: 20000
+      max-lifetime: 1000
+      auto-commit: true
+  jpa:
+    database:  POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    show-sql: false
+    # set generate-ddl as false before pushing to production
+    generate-ddl: false
+    properties:
+      hibernate:
+        # Set the ddl-auto to none before pushing to production.
+        ddl-auto: none
+        temp:
+          use_jdbc_metadata_defaults: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+# iSymphony Security aspects.
+com.mbk.app.configuration:
+  security:
+    endpoints:
+      unsecured:
+        - "/v3/api-docs/**"
+        - "/swagger-ui.html"
+        - "/swagger-ui/**"
+        - "/actuator/**"
+        - "/mbkmusic-mbkauth/**"
+    cors:
+      headers:
+        allowed-origins:
+          - http://localhost:8080
+          - https://localhost:8080
+          - http://localhost:8762
+          - https://localhost:8762
+        allowed-methods:
+          - OPTIONS
+          - POST
+          - GET
+          - PATCH
+          - PUT
+          - DELETE
+        allowed-headers:
+          - Origin
+          - Accept
+          - X-Requested-With
+          - Content-Type
+          - Access-Control-Request-Method
+          - Access-Control-Request-Headers
+          - Authorization
+        max-age: 3600
+        allow-credentials: true
+    auth:
+      token:
+        secret: isymphony
+        expiration-interval-in-hours: 168
+      validate-token-url:
+        url: http://gateway-service:8762/validateToken
+    profile:
+      picture:
+        storage-directory:  ${USER_PROFILE_PICTURE_STORAGE_DIRECTORY:/data/storage/profile-pictures}
+
+  # API documentation settings.
+  # ---------------------------
+  api:
+    documentation:
+      title: mymbk-music-app
+      license: GNU Lesser General Public License
+      licenseUrl: https://www.gnu.org/licenses/lgpl-3.0.en.html
+      version: 1.0.0-SNAPSHOT
+      contact:
+        name: Editor 
+        email: Editor 
+      base-package: "com.mbk.app"
+      security-schema:
+        name: bearerAuth
+        scheme: bearer
+        type: HTTP
+        bearerFormat: JWT
+
+
+---
+# Profile: dev
+# -----------
+spring:
+  profiles: dev
+  rabbitmq:
+    host: localhost
+# API Documentation settings
+com.mbk.app.configuration:
+  security:
+    auth:
+      validate-token-url:
+        url: http://gateway-service:8762/validateToken
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    health-check-url-path: ${management.context-path}/health
+    preferIpAddress: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://discovery-service:${DISCOVERY_SERVICE_PORT:8761}/eureka/
+
+---
+# Profile: local
+# -----------
+spring:
+  profiles: local
+  rabbitmq:
+    host: localhost
+# API Documentation settings
+com.mbk.app.configuration:
+  security:
+    auth:
+      validate-token-url:
+        url: http://localhost:8762/validateToken
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    health-check-url-path: ${management.context-path}/health
+    preferIpAddress: true
+  client:
+    registryFetchIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://localhost:${DISCOVERY_SERVICE_PORT:8761}/eureka/

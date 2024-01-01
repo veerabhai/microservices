@@ -1,0 +1,53 @@
+# Application name and Config Service URI
+# ---------------------------------------
+spring:
+  application:
+    name: mbkmusic-mbkmusic-service
+  cloud:
+    config:
+      uri: http://config-service:${ISY_CONFIG_SERVICE_PORT:8888}
+---
+# ------------
+# Profile - dev
+# -------------
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+
+---
+# ------------
+# Profile - local
+# -------------
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: http://localhost:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+---
+  cloud:
+    aws:
+      credentials:
+        secret-key: Jf3Y+4D/yN6p3FZ40I8tNpf5qAFZKd/mX2dWc3y/
+        access-key: AKIAYTKZ4XQREEDFY5NX
+      region:
+        static: us-west-2
+      stack:
+        auto: 'false'
+  spring:
+    servlet:
+      multipart:
+        max-request-size: 200MB
+        max-file-size: 200MB
+
+
+  application:
+    bucket:
+      name: mbkbilling/mbk_files
+
+

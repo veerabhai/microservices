@@ -1,0 +1,117 @@
+# Server Port
+# -----------
+server:
+  port: 8762
+
+# Routes configuration
+# --------------------
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: authentication-service
+          uri: lb://authentication-service
+          predicates:
+            - Path=/auth/**,/validateToken/**,/users/me/**
+          filters:
+            - RewritePath=/auth/(?<path>.*), /auth/$\{path}
+            - RewritePath=/validateToken/(?<path>.*), /validateToken/$\{path}
+            - RewritePath=/users/me/(?<path>.*), /users/me/$\{path}
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - id: mbkmusic-mbkmusic-service-api-docs
+          uri: lb://mbkmusic-mbkmusic-service
+          predicates:
+            - Path=/mbkmusic-mbkmusic/v3/api-docs/**
+          filters:
+            - RewritePath=/mbkmusic-mbkmusic/(?<path>.*), /$\{path}
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - id: mbkmusic-mbkmusic-service
+          uri: lb://mbkmusic-mbkmusic-service
+          predicates:
+            - Path=/mbkmusic-mbkmusic/**
+          filters:
+            - RewritePath=/mbkmusic-mbkmusic/(?<path>.*), /mbkmusic-mbkmusic/$\{path}
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - id: mbkmusic-mbkauth-service-api-docs
+          uri: lb://mbkmusic-mbkauth-service
+          predicates:
+            - Path=/mbkmusic-mbkauth/v3/api-docs/**
+          filters:
+            - RewritePath=/mbkmusic-mbkauth/(?<path>.*), /$\{path}
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - id: mbkmusic-mbkauth-service
+          uri: lb://mbkmusic-mbkauth-service
+          predicates:
+            - Path=/mbkmusic-mbkauth/**
+          filters:
+            - RewritePath=/mbkmusic-mbkauth/(?<path>.*), /mbkmusic-mbkauth/$\{path}
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - id: openapi
+          uri: http://localhost:8762
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*), /$\{path}/v3/api-docs
+            - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - PATCH
+              - PUT
+              - POST
+              - DELETE
+              - PATH
+              - OPTIONS
+            allowedHeaders:
+              - origin
+              - tenant
+              - accept
+              - x-requested-with
+              - content-type
+              - access-control-request-method
+              - access-control-request-headers
+              - authorization
+            exposedHeaders:
+              - content-type
+              - content-disposition
+            allowCredentials: true
+            maxAge: 3600
+        addToSimpleUrlHandlerMapping: true
+
+# Increase the Hystrix timeout to 60s (globally)
+# ----------------------------------------------
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 180000
+  threadpool:
+    default:
+      coreSize: 50
+
+# Requests to the zuul proxy are routed through the Ribbon load balancer and will throw a timeout exception
+# if the response is not obtained within a couple of seconds. Increase the timeout values (as the login to AD
+# can potentially take several seconds.
+# -----------------------------------------------------------------------------------------------------------
+ribbon:
+  ConnectTimeout: 60000
+  ReadTimeout: 120000
+
+# Information that gets displayed in the spring admin UI
+# ------------------------------------------------------
+info:
+  app:
+    name: gateway-service
+    description: Gateway Service for application

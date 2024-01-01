@@ -1,0 +1,31 @@
+# Application name and Config Service URI
+# ---------------------------------------
+spring:
+  application:
+    name: mbkmusic-mbkauth-service
+  cloud:
+    config:
+      uri: http://config-service:${ISY_CONFIG_SERVICE_PORT:8888}
+---
+# ------------
+# Profile - dev
+# -------------
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+
+---
+# ------------
+# Profile - local
+# -------------
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: http://localhost:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true

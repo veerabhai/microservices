@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.mbk.app</groupId>
+		<artifactId>mymbk-music-app</artifactId>
+		<version>${build.version}</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>mymbk-music-app-authentication-service</artifactId>
+	<name>mymbk-music-app-authentication-service</name>
+		<description>Testing the Database Authentication.</description>
+	<properties>
+		<start-class>com.mbk.app.security.AuthenticationApplication</start-class>
+		<service.name>${project.artifactId}</service.name>
+		<artifact.name>${service.name}-${project.version}</artifact.name>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Spring cloud components - Actuator, config client, eureka -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+			<version>${spring.boot.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<version>${spring.boot.version}</version>
+		</dependency>
+
+		<!-- Internal Dependency -->
+		<dependency>
+			<groupId>com.mbk.app</groupId>
+			<artifactId>mymbk-music-app-security-auth-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.mbk.app</groupId>
+			<artifactId>mymbk-music-app-user-data-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.mbk.app</groupId>
+			<artifactId>mymbk-music-app-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>${artifact.name}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<!-- Build the service as a fat jar. -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>${start-class}</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+							<!-- Adds META-INF/build-info.properties -->
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Copy the dependencies into target/lib folder. This is required for proper analysis by SonarQube scanner -->
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>${docker.image.prefix}/${service.name}</repository>
+					<tag>${project.version}</tag>
+					<pullNewerImage>false</pullNewerImage>
+					<buildArgs>
+						<ARTIFACT_NAME>${service.name}-${project.version}.jar</ARTIFACT_NAME>
+						<ROOT_ARTIFACT_ID>${project.parent.artifactId}</ROOT_ARTIFACT_ID>
+					</buildArgs>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<!-- docker Image push and release profile -->
+		<profile>
+			<id>dockerRelease</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<inherited>false</inherited>
+								<!--<configuration>
+									<target>
+										<exec executable="docker">
+											<arg value="push"/>
+											<arg value="${ecr.repository}/${service.name}:${project.version}"/>
+										</exec>
+									</target>
+								</configuration>-->
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<!-- Build docker image -->
+					<plugin>
+						<groupId>com.spotify</groupId>
+						<artifactId>dockerfile-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>default</id>
+								<goals>
+									<goal>build</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<repository>${ecr.repository}/${service.name}</repository>
+							<tag>${project.version}</tag>
+							<buildArgs>
+								<ARTIFACT_NAME>${service.name}-${project.version}.jar</ARTIFACT_NAME>
+								<SERVICE_PORT>${service.port}</SERVICE_PORT>
+							</buildArgs>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

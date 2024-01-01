@@ -1,0 +1,23 @@
+# Log settings
+# ------------
+logging:
+  level:
+    org.springframework: ERROR
+    com.mbk.app.configuration: ERROR
+
+# Server Port Setting
+# -------------------
+server:
+  port: 8888
+
+# Application Name, Config Server Settings
+# ----------------------------------------
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      label: master
+      server:
+        git:
+          uri: file://${CONFIGURATION_ROOT:/config}

@@ -1,0 +1,128 @@
+# Enable SSL
+# ----------
+#server:
+#  ssl:
+#    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:false}
+#    key-store-type: JKS
+#    key-password: innominds
+#    key-store: classpath:certs/keystore.jks
+#
+#security:
+#  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:false}
+
+# Application name and Config Service URI
+# ---------------------------------------
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+
+# Information that gets displayed in the spring admin UI
+# ------------------------------------------------------
+info:
+  app:
+    name: ${spring.application.name}
+    description: Gateway Service for iSymphony Platform
+
+---
+# -------------
+# Profile - DIT
+# -------------
+server:
+  ssl:
+    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+    key-store-type: ${SSL_KEY_STORE_TYPE:JKS}
+    key-password: ${SSL_KEY_PASSWORD}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store: file:/opt/apps/innominds/isymphony/projects/${SSL_KEY_STORE_FILE}
+security:
+  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+spring:
+  profiles: dit
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+---
+# -------------
+# Profile - SIT
+# -------------
+server:
+  ssl:
+    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+    key-store-type: ${SSL_KEY_STORE_TYPE:JKS}
+    key-password: ${SSL_KEY_PASSWORD}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store: file:/opt/apps/innominds/isymphony/projects/${SSL_KEY_STORE_FILE}
+security:
+  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+spring:
+  profiles: sit
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+
+---
+# Profile - production
+# --------------------
+server:
+  ssl:
+    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+    key-store-type: ${SSL_KEY_STORE_TYPE:JKS}
+    key-password: ${SSL_KEY_PASSWORD}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store: file:/opt/apps/innominds/isymphony/projects/${SSL_KEY_STORE_FILE}
+security:
+  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:true}
+spring:
+  profiles: production
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+
+---
+# ------------
+# Profile - dev
+# -------------
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config-service:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+server:
+  ssl:
+    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:false}
+    key-store-type: ${SSL_KEY_STORE_TYPE:JKS}
+    key-password: ${SSL_KEY_PASSWORD}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store: file:/opt/apps/innominds/isymphony/projects/${SSL_KEY_STORE_FILE}
+security:
+  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:false}
+
+
+
+---
+# ------------
+# Profile - local
+# -------------
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: http://localhost:${CONFIG_SERVICE_PORT:8888}
+      fail-fast: true
+      enabled: true
+server:
+  ssl:
+    enabled: ${GATEWAY_SERVICE_SSL_ENABLED:false}
+    key-store-type: ${SSL_KEY_STORE_TYPE:JKS}
+    key-password: ${SSL_KEY_PASSWORD}
+    key-alias: ${SSL_KEY_ALIAS}
+    key-store: file:/opt/apps/innominds/isymphony/projects/${SSL_KEY_STORE_FILE}
+security:
+  require-ssl: ${GATEWAY_SERVICE_SSL_ENABLED:false}
